@@ -1,0 +1,32 @@
+{
+  "name": "lambda-crawler",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "repository": "git@github.com:karakaram/lambda-crawler.git",
+  "author": "karakaram",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint src",
+    "test": "jest --config=jest.config.json",
+    "invoke:google-search": "sls invoke local -f google-search",
+    "invoke:enter": "sls invoke local -f enter",
+    "deploy": "sls deploy -v",
+    "remove": "sls remove"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.326.0",
+    "chrome-launcher": "^0.10.5",
+    "eslint": "^5.6.0",
+    "eslint-config-prettier": "^3.1.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "jest": "^23.6.0",
+    "prettier": "^1.14.3"
+  },
+  "dependencies": {
+    "@serverless-chrome/lambda": "1.0.0-55",
+    "@slack/client": "^4.7.0",
+    "chrome-remote-interface": "^0.27.0",
+    "puppeteer": "1.11.0"
+  }
+}
