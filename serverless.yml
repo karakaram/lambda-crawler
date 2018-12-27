@@ -26,20 +26,12 @@ provider:
   region: ap-northeast-1
 
 # you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "sts:AssumeRole"
+        - "ssm:GetParameters"
+      Resource: "*"
 
 # you can define service wide environment variables here
 #  environment:
@@ -63,13 +55,6 @@ functions:
       - http:
           path: users/enter
           method: post
-    environment:
-      PROXY_SERVER: ''
-      PROXY_USER_NAME: ''
-      PROXY_PASSWORD: ''
-      SIGN_IN_URL: ''
-      SIGN_IN_USER_NAME: ''
-      SIGN_IN_PASSWORD: ''
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
