@@ -14,7 +14,7 @@ $ yarn install
 
 ## Usage
 
-Invoke google-search
+Invoke enter
 ```
 $ yarn invoke:enter
 ```

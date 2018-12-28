@@ -47,8 +47,6 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-#  google-search:
-#    handler: src/google-search.main
   enter:
     handler: src/enter.main
     events:
