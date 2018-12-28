@@ -3,6 +3,10 @@
 const launchChrome = require('@serverless-chrome/lambda');
 const CDP = require('chrome-remote-interface');
 const puppeteer = require('puppeteer');
+let AWS = require('aws-sdk');
+AWS.config.update({region: 'ap-northeast-1'});
+/** @type {SSM} */
+const ssm = new AWS.SSM();
 
 module.exports.main = async (event, context, callback) => {
     console.log(context);
@@ -21,32 +25,34 @@ module.exports.main = async (event, context, callback) => {
     let browser = null;
     let page = null;
 
-    const proxyUrl = process.env.PROXY_SERVER;
-    const proxyUserName = process.env.PROXY_USER_NAME;
-    const proxyPassword = process.env.PROXY_PASSWORD;
-    const signInUrl = process.env.SIGN_IN_URL;
-    const signInUserName = process.env.SIGN_IN_USER_NAME;
-    const signInPassword = process.env.SIGN_IN_PASSWORD;
+    let params = {
+        Names: ['ProxyUrl', 'ProxyUserName', 'ProxyPassword', 'SignInUrl', 'SignInUserName', 'SignInPassword'],
+    };
+    const ssmParameters = await ssm.getParameters(params).promise();
+    const parameters = ssmParameters.Parameters.reduce((o, x) => {
+        o[x.Name] = x.Value;
+        return o;
+    }, {});
 
     try {
         slsChrome = await launchChrome({
-            flags: [`--proxy-server=${proxyUrl}`, '--headless'],
+            flags: [`--proxy-server=${parameters['ProxyUrl']}`, '--headless'],
         });
         browser = await puppeteer.connect({
             browserWSEndpoint: (await CDP.Version()).webSocketDebuggerUrl,
         });
         page = await browser.newPage();
-        await page.authenticate({username: proxyUserName, password: proxyPassword});
+        await page.authenticate({username: parameters['ProxyUserName'], password: parameters['ProxyPassword']});
 
-        await page.goto(signInUrl, {waitUntil: 'domcontentloaded'});
+        await page.goto(parameters['SignInUrl'], {waitUntil: 'domcontentloaded'});
 
         let title = await page.evaluate(() => {
             return document.title;
         });
         console.log(title);
 
-        await page.type('input[name="user_id"]', signInUserName);
-        await page.type('input[name="password"]', signInPassword);
+        await page.type('input[name="user_id"]', parameters['SignInUserName']);
+        await page.type('input[name="password"]', parameters['SignInPassword']);
         let buttonElement = await page.$(
             'body > form > table:nth-child(9) > tbody > tr > td:nth-child(1) > input[type="button"]'
         );
@@ -58,10 +64,10 @@ module.exports.main = async (event, context, callback) => {
         });
         console.log(data);
 
-        return callback(null, JSON.stringify({result: 'OK'}));
+        return callback(null, JSON.stringify({result: 'Success'}));
     } catch (err) {
         console.error(err);
-        return callback(null, JSON.stringify({result: 'NG'}));
+        return callback(null, JSON.stringify({result: 'Failure'}));
     } finally {
         if (page) {
             await page.close();
