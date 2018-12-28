@@ -40,7 +40,7 @@ module.exports.main = async (event, context, callback) => {
 
         await page.type('input[name="user_id"]', parameters['SignInUserName']);
         await page.type('input[name="password"]', parameters['SignInPassword']);
-        await page.click('body > form > table:nth-child(9) > tbody > tr > td:nth-child(2) > input[type="button"]', {
+        await page.click('body > form > table:nth-child(9) > tbody > tr > td:nth-child(1) > input[type="button"]', {
             waitUntil: 'domcontentloaded',
         });
         // console.log(await page.title());
@@ -54,17 +54,33 @@ module.exports.main = async (event, context, callback) => {
         console.log(message);
 
         params = {
-            Message: 'Succeeded entering',
-            Subject: message,
+            Message: message,
+            Subject: 'Succeeded entering',
             TopicArn: 'arn:aws:sns:ap-northeast-1:274682760725:my-topic',
         };
-        sns.publish(params, (err, data) => {
-            console.log(data);
+        await sns.publish(params, (err, data) => {
+            if (err) {
+                console.log(err, err.stack);
+            } else {
+                console.log(data);
+            }
         });
 
         return callback(null, JSON.stringify({ result: 'Success' }));
     } catch (err) {
         console.error(err);
+        params = {
+            Message: err,
+            Subject: 'Failed entering',
+            TopicArn: 'arn:aws:sns:ap-northeast-1:274682760725:my-topic',
+        };
+        await sns.publish(params, (err, data) => {
+            if (err) {
+                console.log(err, err.stack);
+            } else {
+                console.log(data);
+            }
+        });
         return callback(null, JSON.stringify({ result: 'Failure' }));
     } finally {
         if (page) {

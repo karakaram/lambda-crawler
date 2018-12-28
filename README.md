@@ -39,3 +39,7 @@ Remove
 ```
 $ yarn remove
 ```
+
+Reference
+
+- https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md
