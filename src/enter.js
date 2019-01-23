@@ -40,9 +40,16 @@ module.exports.main = async (event, context, callback) => {
 
         await page.type('input[name="user_id"]', parameters['SignInUserName']);
         await page.type('input[name="password"]', parameters['SignInPassword']);
-        await page.click('body > form > table:nth-child(9) > tbody > tr > td:nth-child(1) > input[type="button"]', {
-            waitUntil: 'domcontentloaded',
-        });
+        if (event.type === 'exit') {
+            await page.click('body > form > table:nth-child(9) > tbody > tr > td:nth-child(2) > input[type="button"]', {
+                waitUntil: 'domcontentloaded',
+            });
+        } else {
+            await page.click('body > form > table:nth-child(9) > tbody > tr > td:nth-child(1) > input[type="button"]', {
+                waitUntil: 'domcontentloaded',
+            });
+        }
+
         // console.log(await page.title());
         // await page.waitForNavigation({ timeout: 10000, waitUntil: 'domcontentloaded' });
         // await page.screenshot({path: 'enter.png', fullPage: true});
